@@ -31,6 +31,8 @@ end
 # Generate ruby code from a sexp.
 
 class Ruby2Ruby < SexpProcessor
+  class InvalidOption < StandardError; end
+
   VERSION = "2.1.3" # :nodoc:
 
   # cutoff for one-liners
@@ -78,8 +80,22 @@ class Ruby2Ruby < SexpProcessor
     :true
   ]
 
-  def initialize # :nodoc:
-    super
+  HASH_SYNTAXES = [:ruby18, :ruby19]
+  RUBY_19_HASH_KEY = /\A[a-z][_a-zA-Z0-9]+\Z/
+
+  CONSTRUCTOR_OPTIONS = [:hash_syntax]
+
+  attr_reader :hash_syntax
+
+  ##
+  # Options:
+  #
+  # - `:hash_syntax` - either `:ruby18` or `:ruby19`
+
+  def initialize(option = {})
+    super()
+    check_option_keys(option)
+    @hash_syntax = extract_option(HASH_SYNTAXES, option[:hash_syntax], :ruby18)
     @indent = "  "
     self.auto_shift_type = true
     self.strict = true
@@ -501,6 +517,7 @@ class Ruby2Ruby < SexpProcessor
     until exp.empty?
       s = exp.shift
       t = s.sexp_type
+      ruby19_compatible = hash_key_is_ruby19_compatible?(s)
       lhs = process s
 
       case t
@@ -512,7 +529,12 @@ class Ruby2Ruby < SexpProcessor
         rhs = process rhs
         rhs = "(#{rhs})" unless HASH_VAL_NO_PAREN.include? t
 
-        result << "#{lhs} => #{rhs}"
+        if hash_syntax == :ruby19 && ruby19_compatible
+          lhs.gsub!(/\A:/, "")
+          result << "#{lhs}: #{rhs}"
+        else
+          result << "#{lhs} => #{rhs}"
+        end
       end
     end
 
@@ -981,6 +1003,13 @@ class Ruby2Ruby < SexpProcessor
   ############################################################
   # Utility Methods:
 
+  def check_option_keys(option)
+    diff = option.keys - CONSTRUCTOR_OPTIONS
+    unless diff.empty?
+      raise InvalidOption, "Invalid option(s): #{diff}"
+    end
+  end
+
   ##
   # Generate a post-or-pre conditional loop.
 
@@ -1022,6 +1051,20 @@ class Ruby2Ruby < SexpProcessor
   end
 
   ##
+  # Check that `value` is in `array` of valid option values,
+  # or raise InvalidOption.  If `value` is nil, return `default`.
+
+  def extract_option(array, value, default)
+    if value.nil?
+      default
+    elsif array.include?(value)
+      value
+    else
+      raise InvalidOption, "Invalid option value: #{value}"
+    end
+  end
+
+  ##
   # Process all the remaining stuff in +exp+ and return the results
   # sans-nils.
 
@@ -1031,6 +1074,17 @@ class Ruby2Ruby < SexpProcessor
       body << process(exp.shift)
     end
     body.compact
+  end
+
+  ##
+  # Given `exp` representing the left side of a hash pair, return true
+  # if it is compatible with the ruby 1.9 hash syntax.  For example,
+  # the string "foo" is compatible, but the literal `7` is not.
+
+  def hash_key_is_ruby19_compatible?(exp)
+    [:lit, :str].include?(exp.first) &&
+      exp.length == 2 &&
+      RUBY_19_HASH_KEY === exp[1].to_s
   end
 
   ##
