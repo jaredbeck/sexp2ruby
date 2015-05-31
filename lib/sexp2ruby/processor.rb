@@ -4,7 +4,6 @@ module Sexp2Ruby
 
   # Generate ruby code from a sexp.
   class Processor < SexpProcessor
-    class InvalidOption < StandardError; end
 
     # cutoff for one-liners
     LINE_LENGTH = 78

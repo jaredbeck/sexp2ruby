@@ -56,47 +56,6 @@ class TestRuby2Ruby < R2RTestCase
     processor(hash_syntax: :ruby19)
   end
 
-  def test_new_processor_no_such_option
-    # TODO: figure out how to use `assert_raises` here.
-    # Running into trouble with e.g. `TestRuby2Ruby2`.
-    begin
-      processor(foo: :bar)
-      assert false, "Expected InvalidOption error"
-    rescue StandardError => e
-      assert_includes e.class.to_s, "InvalidOption"
-    end
-  end
-
-  def test_new_processor_bad_option_value
-    # TODO: figure out how to use `assert_raises` here.
-    # Running into trouble with e.g. `TestRuby2Ruby2`.
-    begin
-      processor(hash_syntax: :banana)
-      assert false, "Expected InvalidOption error"
-    rescue StandardError => e
-      assert_includes e.class.to_s, "InvalidOption"
-    end
-  end
-
-  def test_extract_option
-    assert_equal :b, @processor.extract_option([:a, :b], :b, :c)
-  end
-
-  def test_extract_option_default
-    assert_equal :c, @processor.extract_option([:a, :b], nil, :c)
-  end
-
-  def test_extract_option_invalid
-    # TODO: figure out how to use `assert_raises` here.
-    # Running into trouble with `Ruby2Ruby2` and `Ruby2Ruby3`.
-    begin
-      @processor.extract_option([:a, :b], :d, :c)
-      assert false, "Expected InvalidOption error"
-    rescue StandardError
-      assert true
-    end
-  end
-
   def test_hash_key_is_ruby19_compatible
     compat = Proc.new { |key| @processor.hash_key_is_ruby19_compatible?(key) }
     assert_equal true, compat.call(s(:str, "foo"))
