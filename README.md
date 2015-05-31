@@ -27,6 +27,6 @@ Sexp2Ruby::Processor.new.process(sexp.deep_clone)
 As with all `SexpProcessor`s, `Sexp2Ruby#process` destroys its input,
 so `deep_clone` if you need to preserve it.
 
-[1] https://github.com/seattlerb/ruby2ruby
-[2] http://docs.seattlerb.org/ruby2ruby
-[3] https://github.com/bbatsov/ruby-style-guide
+[1]: https://github.com/seattlerb/ruby2ruby
+[2]: http://docs.seattlerb.org/ruby2ruby
+[3]: https://github.com/bbatsov/ruby-style-guide
