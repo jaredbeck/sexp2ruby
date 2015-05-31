@@ -14,38 +14,6 @@ class TestRuby2Ruby
     Ruby2Ruby.new(opts)
   end
 
-  def test_util_dthing_dregx
-    inn = util_thingy(:dregx)
-    inn.shift
-    out = '/a"b#{(1 + 1)}c"d\/e/'
-    exp = /a"b2c"d\/e/
-
-    assert_equal exp, eval(out)
-
-    assert_equal out[1..-2], @processor.util_dthing(:dregx, inn)
-  end
-
-  def test_util_dthing_dstr
-    inn = util_thingy(:dstr)
-    inn.shift
-    out = '"a\"b#{(1 + 1)}c\"d/e"'
-    exp = 'a"b2c"d/e'
-
-    assert_equal exp, eval(out)
-
-    assert_equal out[1..-2], @processor.util_dthing(:dstr, inn)
-  end
-
-  def test_util_dthing_dregx_bug?
-    inn = s(:dregx, '[\/\"]', s(:evstr, s(:lit, 42)))
-    inn.shift
-    out = '/[\/\"]#{42}/'
-    exp =  /[\/\"]42/
-
-    assert_equal out[1..-2], @processor.util_dthing(:dregx, inn)
-    assert_equal exp, eval(out)
-  end
-
   def test_hash_parens_str
     inn = s(:hash, s(:lit, :k), s(:str, "banana"))
     out = '{ :k => "banana" }'
@@ -567,12 +535,5 @@ class TestRuby2Ruby
 
     util_compare Ruby18Parser.new.parse(rb3), rb1
     util_compare Ruby19Parser.new.parse(rb3), rb2
-  end
-
-  def util_thingy(type)
-    s(type,
-      'a"b',
-      s(:evstr, s(:call, s(:lit, 1), :+, s(:lit, 1))),
-      s(:str, 'c"d/e'))
   end
 end

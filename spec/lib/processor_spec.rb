@@ -93,6 +93,38 @@ module Sexp2Ruby
       end
     end
 
+    describe "#util_dthing" do
+      let(:interpolation) {
+        s('a"b',
+          s(:evstr, s(:call, s(:lit, 1), :+, s(:lit, 1))),
+          s(:str, 'c"d/e')
+        )
+      }
+
+      context "dregx" do
+        it "generates regex with interpolation" do
+          out = '/a"b#{(1 + 1)}c"d\/e/'
+          expect(out).to eval_to(/a"b2c"d\/e/)
+          expect(processor.util_dthing(:dregx, interpolation)).to eq(out[1..-2])
+        end
+
+        it "generates regex with interpolation" do
+          interpolation = s('[\/\"]', s(:evstr, s(:lit, 42)))
+          out = '/[\/\"]#{42}/'
+          expect(out).to eval_to(/[\/\"]42/)
+          expect(processor.util_dthing(:dregx, interpolation)).to eq(out[1..-2])
+        end
+      end
+
+      context "dstr" do
+        it "generates string with interpolation" do
+          out = '"a\"b#{(1 + 1)}c\"d/e"'
+          expect(out).to eval_to('a"b2c"d/e')
+          expect(processor.util_dthing(:dstr, interpolation)).to eq(out[1..-2])
+        end
+      end
+    end
+
     def compare(sexp, expected_ruby, processor, check_sexp = true, expected_eval = nil)
       if check_sexp
         expect(RubyParser.new.process(expected_ruby)).to eq(sexp)
@@ -102,6 +134,5 @@ module Sexp2Ruby
         expect(eval(expected_ruby)).to eq(expected_eval)
       end
     end
-
   end
 end
