@@ -1,43 +1,5 @@
-#!/usr/local/bin/ruby -w
-
-$TESTING = true
-
-$: << 'lib'
-
-require 'minitest/autorun'
-require 'ruby2ruby'
-require 'pt_testcase'
-require 'fileutils'
-require 'tmpdir'
-require 'ruby_parser' if ENV["CHECK_SEXPS"]
-
-class R2RTestCase < ParseTreeTestCase
-  def self.previous key
-    "ParseTree"
-  end
-
-  def self.generate_test klass, node, data, input_name, output_name
-    output_name = data.has_key?('Ruby2Ruby') ? 'Ruby2Ruby' : 'Ruby'
-
-    return if node.to_s =~ /(str_question|not|bang).*(19|20|21)$/
-
-    klass.class_eval <<-EOM
-      def test_#{node}
-        pt = #{data[input_name].inspect}
-        rb = #{data[output_name].inspect}
-
-        refute_nil pt, \"ParseTree for #{node} undefined\"
-        refute_nil rb, \"Ruby for #{node} undefined\"
-
-        assert_equal rb, @processor.process(pt)
-      end
-    EOM
-  end
-end
-
-start = __LINE__
-
-class TestRuby2Ruby < R2RTestCase
+# WIP: Converting to rspec.  This file is not in a usable state.
+class TestRuby2Ruby
   def setup
     super
     @check_sexp = ENV["CHECK_SEXPS"]
@@ -621,60 +583,5 @@ class TestRuby2Ruby < R2RTestCase
       'a"b',
       s(:evstr, s(:call, s(:lit, 1), :+, s(:lit, 1))),
       s(:str, 'c"d/e'))
-  end
-end
-
-####################
-#         impl
-#         old  new
-#
-# t  old    0    1
-# e
-# s
-# t  new    2    3
-
-tr2r = File.read(__FILE__).split(/\n/)[start+1..__LINE__-2].join("\n")
-ir2r = File.read("lib/ruby2ruby.rb")
-
-require 'ruby_parser'
-
-def silent_eval ruby
-  old, $-w = $-w, nil
-  eval ruby
-  $-w = old
-end
-
-def morph_and_eval src, from, to, processor
-  parser = RubyParser.for_current_ruby rescue RubyParser.new
-  new_src = processor.new.process(parser.process(src.sub(from, to)))
-
-  silent_eval new_src
-  new_src
-end
-
-unless ENV["SIMPLE"] then
-  ____ = morph_and_eval tr2r, /TestRuby2Ruby/, 'TestRuby2Ruby2', Ruby2Ruby
-  ruby = morph_and_eval ir2r, /Ruby2Ruby/,     'Ruby2Ruby2',     Ruby2Ruby
-  ____ = morph_and_eval ruby, /Ruby2Ruby2/,    'Ruby2Ruby3',     Ruby2Ruby2
-
-  class TestRuby2Ruby1 < TestRuby2Ruby
-    def setup
-      super
-      @processor = Ruby2Ruby2.new
-    end
-  end
-
-  class TestRuby2Ruby3 < TestRuby2Ruby2
-    def setup
-      super
-      @processor = Ruby2Ruby2.new
-    end
-  end
-
-  class TestRuby2Ruby4 < TestRuby2Ruby2
-    def setup
-      super
-      @processor = Ruby2Ruby3.new
-    end
   end
 end
