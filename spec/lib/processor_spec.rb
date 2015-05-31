@@ -74,6 +74,51 @@ module Sexp2Ruby
           inp = s(:hash, s(:lit, :foo), s(:str, "bar"), s(:lit, 0.7), s(:str, "baz"))
           compare(inp, '{ foo: "bar", 0.7 => "baz" }', processor_hash19)
         end
+
+        describe "parentheses" do
+          it "does not wrap string in parens" do
+            inp = s(:hash, s(:lit, :k), s(:str, "banana"))
+            out = '{ :k => "banana" }'
+            compare(inp, out, processor)
+          end
+
+          it "does not wrap number in parens" do
+            inp = s(:hash, s(:lit, :k), s(:lit, 0.07))
+            out = "{ :k => 0.07 }"
+            compare(inp, out, processor)
+          end
+
+          it "does not wrap boolean in parens" do
+            inp = s(:hash, s(:lit, :k), s(:true))
+            out = "{ :k => true }"
+            compare(inp, out, processor)
+          end
+
+          it "does not wrap nil in parens" do
+            inp = s(:hash, s(:lit, :k), s(:nil))
+            out = "{ :k => nil }"
+            compare(inp, out, processor)
+          end
+
+          it "does not wrap local variable (lvar) in parens" do
+            inp = s(:hash, s(:lit, :k), s(:lvar, :x))
+            out = "{ :k => x }"
+            compare(inp, out, processor, false)
+          end
+
+          it "does not wrap call in parens" do
+            inp = s(:hash, s(:lit, :k), s(:call, nil, :foo, s(:lit, :bar)))
+            out = "{ :k => foo(:bar) }"
+            compare(inp, out, processor)
+          end
+
+          it "wraps method call with block (iter) in parens" do
+            iter = s(:iter, s(:call, nil, :foo), s(:args), s(:str, "bar"))
+            inp = s(:hash, s(:lit, :k), iter)
+            out = '{ :k => (foo { "bar" }) }'
+            compare(inp, out, processor, false)
+          end
+        end
       end
     end
 
