@@ -20,7 +20,7 @@ ruby = "def a\n  puts 'A'\nend\n\ndef b\n  a\nend"
 sexp = RubyParser.new.process(ruby)
 # => s(:block, s(:defn, .. etc.
 
-Sexp2Ruby.new.process(sexp.deep_clone)
+Sexp2Ruby::Processor.new.process(sexp.deep_clone)
 # => "def a\n  puts(\"A\")\nend\ndef b\n  a\nend\n"
 ```
 
