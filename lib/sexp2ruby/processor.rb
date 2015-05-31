@@ -229,7 +229,7 @@ module Sexp2Ruby
                         not BINARY.include? name and
                         not is_empty_hash and
                         (exp.empty? or exp.first.sexp_type == :splat))
-          wrap_arg = Ruby2Ruby::ASSIGN_NODES.include? arg_type
+          wrap_arg = ASSIGN_NODES.include? arg_type
 
           arg = arg[2..-3] if strip_hash
           arg = "(#{arg})" if wrap_arg
@@ -487,7 +487,7 @@ module Sexp2Ruby
       until exp.empty?
         s = exp.shift
         t = s.sexp_type
-        ruby19_compatible = hash_key_is_ruby19_compatible?(s)
+        ruby19_key = ruby19_hash_key?(s)
         lhs = process s
 
         case t
@@ -499,7 +499,7 @@ module Sexp2Ruby
           rhs = process rhs
           rhs = "(#{rhs})" unless HASH_VAL_NO_PAREN.include? t
 
-          if hash_syntax == :ruby19 && ruby19_compatible
+          if hash_syntax == :ruby19 && ruby19_key
             lhs.gsub!(/\A:/, "")
             result << "#{lhs}: #{rhs}"
           else
@@ -521,7 +521,7 @@ module Sexp2Ruby
     end
 
     def process_if(exp) # :nodoc:
-      expand = Ruby2Ruby::ASSIGN_NODES.include? exp.first.first
+      expand = ASSIGN_NODES.include? exp.first.first
       c = process exp.shift
       t = process exp.shift
       f = process exp.shift
@@ -1049,12 +1049,12 @@ module Sexp2Ruby
     ##
     # Given `exp` representing the left side of a hash pair, return true
     # if it is compatible with the ruby 1.9 hash syntax.  For example,
-    # the string "foo" is compatible, but the literal `7` is not.
+    # the symbol `:foo` is compatible, but the literal `7` is not.  Note
+    # that strings are not considered "compatible".  If we converted string
+    # keys to symbol keys, we wouldn't be faithfully representing the input.
 
-    def hash_key_is_ruby19_compatible?(exp)
-      [:lit, :str].include?(exp.first) &&
-        exp.length == 2 &&
-        RUBY_19_HASH_KEY === exp[1].to_s
+    def ruby19_hash_key?(exp)
+      exp.sexp_type == :lit && exp.length == 2 && RUBY_19_HASH_KEY === exp[1].to_s
     end
 
     ##

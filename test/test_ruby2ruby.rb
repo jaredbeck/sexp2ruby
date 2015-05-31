@@ -52,38 +52,6 @@ class TestRuby2Ruby < R2RTestCase
     Ruby2Ruby.new(opts)
   end
 
-  def processor_hash19
-    processor(hash_syntax: :ruby19)
-  end
-
-  def test_hash_key_is_ruby19_compatible
-    compat = Proc.new { |key| @processor.hash_key_is_ruby19_compatible?(key) }
-    assert_equal true, compat.call(s(:str, "foo"))
-    assert_equal true, compat.call(s(:lit, :foo))
-    assert_equal false, compat.call(s(:lit, 7))
-    assert_equal false, compat.call(s(:true))
-  end
-
-  def test_process_hash_ruby19_one_pair
-    inn = s(:hash, s(:lit, :foo), s(:str, "bar"))
-    assert_equal '{ foo: "bar" }', processor_hash19.process(inn)
-  end
-
-  def test_process_hash_ruby19_when_key_has_special_chars
-    inn = s(:hash, s(:str, "hurr:durr"), s(:str, "bar"))
-    assert_equal '{ "hurr:durr" => "bar" }', processor_hash19.process(inn)
-  end
-
-  def test_process_hash_ruby19_when_key_is_not_a_literal
-    inn = s(:hash, s(:call, nil, :foo, s(:str, "bar")), s(:str, "baz"))
-    assert_equal '{ foo("bar") => "baz" }', processor_hash19.process(inn)
-  end
-
-  def test_process_hash_ruby19_mixed_pairs
-    inn = s(:hash, s(:lit, :foo), s(:str, "bar"), s(:lit, 0.7), s(:str, "baz"))
-    assert_equal '{ foo: "bar", 0.7 => "baz" }', processor_hash19.process(inn)
-  end
-
   def test_util_dthing_dregx
     inn = util_thingy(:dregx)
     inn.shift
