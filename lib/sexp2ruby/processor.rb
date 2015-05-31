@@ -4,6 +4,7 @@ module Sexp2Ruby
 
   # Generate ruby code from a sexp.
   class Processor < SexpProcessor
+    LF = "\n"
 
     # cutoff for one-liners
     LINE_LENGTH = 78
@@ -166,7 +167,7 @@ module Sexp2Ruby
         code << src
       end
       code << "end"
-      return code.join("\n")
+      return code.join(LF)
     end
 
     def process_block(exp) # :nodoc:
@@ -182,8 +183,8 @@ module Sexp2Ruby
         end
       end
 
-      result = parenthesize result.join "\n"
-      result += "\n" unless result.start_with? "("
+      result = parenthesize result.join LF
+      result += LF unless result.start_with? "("
 
       return result
     end
@@ -284,7 +285,7 @@ module Sexp2Ruby
         end
       end
       result << "end"
-      result.join("\n")
+      result.join(LF)
     end
 
     def process_cdecl(exp) # :nodoc:
@@ -383,12 +384,12 @@ module Sexp2Ruby
       end
 
       body << "# do nothing" if body.empty?
-      body = body.join("\n")
-      body = body.lines.to_a[1..-2].join("\n") if
+      body = body.join(LF)
+      body = body.lines.to_a[1..-2].join(LF) if
         body =~ /^\Abegin/ && body =~ /^end\z/
       body = indent(body) unless body =~ /(^|\n)rescue/
 
-      return "#{comm}def #{name}#{args}\n#{body}\nend".gsub(/\n\s*\n+/, "\n")
+      return "#{comm}def #{name}#{args}\n#{body}\nend".gsub(/\n\s*\n+/, LF)
     end
 
     def process_defs(exp) # :nodoc:
@@ -470,7 +471,7 @@ module Sexp2Ruby
       result << indent(body ? body : "# do nothing")
       result << "end"
 
-      result.join("\n")
+      result.join(LF)
     end
 
     def process_gasgn(exp) # :nodoc:
@@ -594,10 +595,10 @@ module Sexp2Ruby
       result = []
       result << "#{iter} #{b}"
       result << args
-      result << "\n"
+      result << LF
       if body then
         result << indent(body.strip)
-        result << "\n"
+        result << LF
       end
       result << e
       result.join
@@ -777,7 +778,7 @@ module Sexp2Ruby
       args = " #{args}" unless args.empty?
       args += " => #{name[1]}" if name
 
-      "rescue#{args}\n#{indent body.join("\n")}"
+      "rescue#{args}\n#{indent body.join(LF)}"
     end
 
     def process_rescue exp # :nodoc:
@@ -798,12 +799,12 @@ module Sexp2Ruby
       end
 
       if els then
-        "#{indent body}\n#{resbodies.join("\n")}\nelse\n#{indent els}"
+        "#{indent body}\n#{resbodies.join(LF)}\nelse\n#{indent els}"
       elsif simple then
         resbody = resbodies.first.sub(/\n\s*/, ' ')
         "#{body} #{resbody}"
       else
-        "#{indent body}\n#{resbodies.join("\n")}"
+        "#{indent body}\n#{resbodies.join(LF)}"
       end
     end
 
@@ -886,12 +887,12 @@ module Sexp2Ruby
 
       until exp.empty?
         cond = process(exp.shift).to_s[1..-2]
-        code = indent(finish(exp).join("\n"))
+        code = indent(finish(exp).join(LF))
         code = indent "# do nothing" if code =~ /\A\s*\Z/
         src << "when #{cond} then\n#{code.chomp}"
       end
 
-      src.join("\n")
+      src.join(LF)
     end
 
     def process_while(exp) # :nodoc:
@@ -1000,7 +1001,7 @@ module Sexp2Ruby
         code << body if body
         code << "end #{name} #{cond}"
       end
-      code.join("\n")
+      code.join(LF)
     end
 
     ##
@@ -1061,7 +1062,7 @@ module Sexp2Ruby
     # Indent all lines of +s+ to the current indent level.
 
     def indent(s)
-      s.to_s.split(/\n/).map{|line| @indent + line}.join("\n")
+      s.to_s.split(/\n/).map{|line| @indent + line}.join(LF)
     end
 
     ##
@@ -1137,7 +1138,7 @@ module Sexp2Ruby
         result << " < #{superk}" if superk
       end
 
-      result << "\n"
+      result << LF
 
       body = []
       begin
@@ -1146,7 +1147,7 @@ module Sexp2Ruby
       end until exp.empty?
 
       unless body.empty? then
-        body = indent(body.join("\n\n")) + "\n"
+        body = indent(body.join("\n\n")) + LF
       else
         body = ""
       end
