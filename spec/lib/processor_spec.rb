@@ -1,3 +1,5 @@
+require 'ruby_parser'
+
 module Sexp2Ruby
   RSpec.describe Processor do
     let(:processor) { described_class.new }
@@ -55,22 +57,22 @@ module Sexp2Ruby
       context "hash" do
         it "ruby19_one_pair" do
           inp = s(:hash, s(:lit, :foo), s(:str, "bar"))
-          expect(processor_hash19.process(inp)).to eq('{ foo: "bar" }')
+          compare(inp, '{ foo: "bar" }', processor_hash19)
         end
 
         it "ruby19_when_key_has_special_chars" do
           inp = s(:hash, s(:str, "hurr:durr"), s(:str, "bar"))
-          expect(processor_hash19.process(inp)).to eq('{ "hurr:durr" => "bar" }')
+          compare(inp, '{ "hurr:durr" => "bar" }', processor_hash19)
         end
 
         it "ruby19_when_key_is_not_a_literal" do
           inp = s(:hash, s(:call, nil, :foo, s(:str, "bar")), s(:str, "baz"))
-          expect(processor_hash19.process(inp)).to eq('{ foo("bar") => "baz" }')
+          compare(inp, '{ foo("bar") => "baz" }', processor_hash19)
         end
 
         it "ruby19_mixed_pairs" do
           inp = s(:hash, s(:lit, :foo), s(:str, "bar"), s(:lit, 0.7), s(:str, "baz"))
-          expect(processor_hash19.process(inp)).to eq('{ foo: "bar", 0.7 => "baz" }')
+          compare(inp, '{ foo: "bar", 0.7 => "baz" }', processor_hash19)
         end
       end
     end
@@ -90,5 +92,16 @@ module Sexp2Ruby
         end
       end
     end
+
+    def compare(sexp, expected_ruby, processor, check_sexp = true, expected_eval = nil)
+      if check_sexp
+        expect(RubyParser.new.process(expected_ruby)).to eq(sexp)
+      end
+      expect(processor.process(sexp)).to eq(expected_ruby)
+      if expected_eval
+        expect(eval(expected_ruby)).to eq(expected_eval)
+      end
+    end
+
   end
 end

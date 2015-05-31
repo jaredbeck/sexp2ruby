@@ -569,15 +569,6 @@ class TestRuby2Ruby
     util_compare Ruby19Parser.new.parse(rb3), rb2
   end
 
-  def assert_parse sexp, expected_ruby, expected_eval = nil
-    assert_equal sexp, RubyParser.new.process(expected_ruby), "ruby -> sexp" if
-      @check_sexp
-
-    assert_equal expected_ruby, @processor.process(sexp), "sexp -> ruby"
-    assert_equal expected_eval, eval(expected_ruby) if expected_eval
-  end
-  alias util_compare assert_parse
-
   def util_thingy(type)
     s(type,
       'a"b',

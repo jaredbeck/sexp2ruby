@@ -30,4 +30,5 @@ uses bundler instead of hoe, and uses rspec instead of minitest.
   spec.add_development_dependency "rspec-core"
   spec.add_development_dependency "rspec-expectations"
   spec.add_development_dependency "rspec-mocks"
+  spec.add_development_dependency "ruby_parser"
 end
