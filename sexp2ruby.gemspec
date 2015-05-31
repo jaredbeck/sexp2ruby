@@ -8,12 +8,10 @@ Gem::Specification.new do |spec|
   spec.version       = Sexp2Ruby::VERSION
   spec.authors       = ['Ryan Davis', 'Jared Beck']
   spec.email         = ['jared@jaredbeck.com']
-  spec.summary       = 'Generate ruby code from RubyParser S-expressions'
+  spec.summary       = 'Generates ruby from RubyParser S-expressions'
   spec.description   = <<-EOS
-sexp2ruby generates ruby from RubyParser-compatible S-expressions.
-It is a fork of [ruby2ruby][1] with slightly different goals.  It
-generates ruby that follows [ruby-style-guide][3] where possible,
-uses bundler instead of hoe, and uses rspec instead of minitest.
+Generates ruby from RubyParser-compatible S-expressions.
+It is a fork of ruby2ruby with slightly different goals.
   EOS
   spec.homepage      = 'https://github.com/jaredbeck/sexp2ruby'
   spec.license       = 'MIT'
@@ -25,10 +23,10 @@ uses bundler instead of hoe, and uses rspec instead of minitest.
 
   spec.required_ruby_version = ">= 1.9.3"
 
-  spec.add_runtime_dependency "sexp_processor"
+  spec.add_runtime_dependency "sexp_processor", "~> 4.6"
 
-  spec.add_development_dependency "rspec-core"
-  spec.add_development_dependency "rspec-expectations"
-  spec.add_development_dependency "rspec-mocks"
-  spec.add_development_dependency "ruby_parser"
+  spec.add_development_dependency "rspec-core", "~> 3.2"
+  spec.add_development_dependency "rspec-expectations", "~> 3.2"
+  spec.add_development_dependency "rspec-mocks", "~> 3.2"
+  spec.add_development_dependency "ruby_parser", "~> 3.7"
 end

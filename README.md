@@ -1,7 +1,7 @@
 sexp2ruby
 =========
 
-sexp2ruby generates ruby from RubyParser-compatible S-expressions.
+`sexp2ruby` generates ruby from RubyParser S-expressions.
 It is a fork of [ruby2ruby][1] with slightly different goals.
 
 - Generates ruby that follows [ruby-style-guide][3] where possible
