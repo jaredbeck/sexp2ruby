@@ -145,7 +145,7 @@ module Sexp2Ruby
       else
         raise "dunno what to do: #{args.inspect}" unless args.size == 1 # s(:array)
         name = name.to_s.sub(/=$/, '')
-        if rhs && rhs != s(:arglist) then
+        if rhs && rhs != s(:arglist)
           "#{receiver}.#{name} = #{process(rhs)}"
         else
           raise "dunno what to do: #{rhs.inspect}"
@@ -176,7 +176,7 @@ module Sexp2Ruby
       exp << nil if exp.empty?
       until exp.empty? do
         code = exp.shift
-        if code.nil? or code.first == :nil then
+        if code.nil? or code.first == :nil
           result << "# do nothing\n"
         else
           result << process(code)
@@ -197,8 +197,7 @@ module Sexp2Ruby
 
     def process_break(exp) # :nodoc:
       val = exp.empty? ? nil : process(exp.shift)
-      # HACK "break" + (val ? " #{val}" : "")
-      if val then
+      if val
         "break #{val}"
       else
         "break"
@@ -269,7 +268,7 @@ module Sexp2Ruby
     def process_case(exp) # :nodoc:
       result = []
       expr = process exp.shift
-      if expr then
+      if expr
         result << "case #{expr}"
       else
         result << "case"
@@ -291,11 +290,12 @@ module Sexp2Ruby
     def process_cdecl(exp) # :nodoc:
       lhs = exp.shift
       lhs = process lhs if Sexp === lhs
-      unless exp.empty? then
+
+      if exp.empty?
+        lhs.to_s
+      else
         rhs = process(exp.shift)
         "#{lhs} = #{rhs}"
-      else
-        lhs.to_s
       end
     end
 
@@ -337,7 +337,7 @@ module Sexp2Ruby
       expect = [:ivar, :iasgn, :attrset]
 
       # s(name, args, ivar|iasgn|attrset)
-      if exp.size == 3 and type1 == :args and expect.include? type2 then
+      if exp.size == 3 and type1 == :args and expect.include? type2
         name = exp.first # don't shift in case we pass through
         case type2
         when :ivar then
@@ -346,7 +346,7 @@ module Sexp2Ruby
           meth_name = ivar_name.to_s[1..-1].to_sym
           expected = s(meth_name, s(:args), s(:ivar, ivar_name))
 
-          if exp == expected then
+          if exp == expected
             exp.clear
             return "attr_reader #{name.inspect}"
           end
@@ -361,7 +361,7 @@ module Sexp2Ruby
           expected = s(meth_name, s(:args, arg_name),
                        s(:iasgn, ivar_name, s(:lvar, arg_name)))
 
-          if exp == expected then
+          if exp == expected
             exp.clear
             return "attr_writer :#{name.to_s[0..-2]}"
           end
@@ -514,7 +514,7 @@ module Sexp2Ruby
 
     def process_iasgn(exp) # :nodoc:
       lhs = exp.shift
-      if exp.empty? then # part of an masgn
+      if exp.empty? # part of an masgn
         lhs.to_s
       else
         "#{lhs} = #{process exp.shift}"
@@ -529,9 +529,9 @@ module Sexp2Ruby
 
       c = "(#{c.chomp})" if c =~ /\n/
 
-      if t then
-        unless expand then
-          if f then
+      if t
+        unless expand
+          if f
             r = "#{c} ? (#{t}) : (#{f})"
             r = nil if r =~ /return/ # HACK - need contextual awareness or something
           else
@@ -546,7 +546,7 @@ module Sexp2Ruby
 
         r
       elsif f
-        unless expand then
+        unless expand
           r = "#{f} unless #{c}"
           return r if (@indent+r).size < LINE_LENGTH and r !~ /\n/
         end
@@ -571,7 +571,7 @@ module Sexp2Ruby
                a
              end
 
-      b, e = if iter == "END" then
+      b, e = if iter == "END"
                [ "{", "}" ]
              else
                [ "do", "end" ]
@@ -583,7 +583,7 @@ module Sexp2Ruby
       result = []
       result << "#{iter} {"
       result << args
-      if body then
+      if body
         result << " #{body.strip} "
       else
         result << ' '
@@ -596,7 +596,7 @@ module Sexp2Ruby
       result << "#{iter} #{b}"
       result << args
       result << LF
-      if body then
+      if body
         result << indent(body.strip)
         result << LF
       end
@@ -656,13 +656,13 @@ module Sexp2Ruby
           raise "no clue: #{lhs.inspect}"
         end
 
-        unless rhs.nil? then
+        if rhs.nil?
+          return lhs.join(", ")
+        else
           t = rhs.first
           rhs = process rhs
           rhs = rhs[1..-2] if t == :array # FIX: bad? I dunno
           return "#{lhs.join(", ")} = #{rhs}"
-        else
-          return lhs.join(", ")
         end
       when Symbol then # block arg list w/ masgn
         result = exp.join ", "
@@ -688,7 +688,7 @@ module Sexp2Ruby
       left_type = exp.first.sexp_type
       lhs = process(exp.shift)
 
-      if ASSIGN_NODES.include? left_type then
+      if ASSIGN_NODES.include? left_type
         "(#{lhs}) =~ #{rhs}"
       else
         "#{lhs} =~ #{rhs}"
@@ -701,7 +701,7 @@ module Sexp2Ruby
 
     def process_next(exp) # :nodoc:
       val = exp.empty? ? nil : process(exp.shift)
-      if val then
+      if val
         "next #{val}"
       else
         "next"
@@ -798,9 +798,9 @@ module Sexp2Ruby
         resbodies << process(resbody)
       end
 
-      if els then
+      if els
         "#{indent body}\n#{resbodies.join(LF)}\nelse\n#{indent els}"
-      elsif simple then
+      elsif simple
         resbody = resbodies.first.sub(/\n\s*/, ' ')
         "#{body} #{resbody}"
       else
@@ -813,7 +813,7 @@ module Sexp2Ruby
     end
 
     def process_return(exp) # :nodoc:
-      if exp.empty? then
+      if exp.empty?
         "return"
       else
         "return #{process exp.shift}"
@@ -829,7 +829,7 @@ module Sexp2Ruby
     end
 
     def process_splat(exp) # :nodoc:
-      if exp.empty? then
+      if exp.empty?
         "*"
       else
         "*#{process(exp.shift)}"
@@ -877,7 +877,7 @@ module Sexp2Ruby
     def process_when(exp) # :nodoc:
       src = []
 
-      if self.context[1] == :array then # ugh. matz! why not an argscat?!?
+      if self.context[1] == :array # ugh. matz! why not an argscat?!?
         val = process(exp.shift)
         exp.shift # empty body
         return "*#{val}"
@@ -907,10 +907,10 @@ module Sexp2Ruby
         args << process(exp.shift)
       end
 
-      unless args.empty? then
-        "yield(#{args.join(', ')})"
-      else
+      if args.empty?
         "yield"
+      else
+        "yield(#{args.join(', ')})"
       end
     end
 
@@ -922,7 +922,7 @@ module Sexp2Ruby
     # Rewriters:
 
     def rewrite_attrasgn exp # :nodoc:
-      if context.first(2) == [:array, :masgn] then
+      if context.first(2) == [:array, :masgn]
         exp[0] = :call
         exp[2] = exp[2].to_s.sub(/=$/, '').to_sym
       end
@@ -990,7 +990,7 @@ module Sexp2Ruby
       body = indent(body).chomp if body
 
       code = []
-      if head_controlled then
+      if head_controlled
         code << "#{name} #{cond} do"
         code << body if body
         code << "end"
@@ -1131,7 +1131,7 @@ module Sexp2Ruby
 
       result << name
 
-      if is_class then
+      if is_class
         superk = process(exp.shift)
         result << " < #{superk}" if superk
       end
@@ -1144,11 +1144,7 @@ module Sexp2Ruby
         body << code.chomp unless code.nil? or code.chomp.empty?
       end until exp.empty?
 
-      unless body.empty? then
-        body = indent(body.join("\n\n")) + LF
-      else
-        body = ""
-      end
+      body = body.empty? ? "" : indent(body.join("\n\n")) + LF
       result << body
       result << "end"
 
