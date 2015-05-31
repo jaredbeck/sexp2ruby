@@ -167,7 +167,7 @@ module Sexp2Ruby
         code << src
       end
       code << "end"
-      return code.join(LF)
+      code.join(LF)
     end
 
     def process_block(exp) # :nodoc:
@@ -186,7 +186,7 @@ module Sexp2Ruby
       result = parenthesize result.join LF
       result += LF unless result.start_with? "("
 
-      return result
+      result
     end
 
     def process_block_pass exp # :nodoc:
@@ -389,7 +389,7 @@ module Sexp2Ruby
         body =~ /^\Abegin/ && body =~ /^end\z/
       body = indent(body) unless body =~ /(^|\n)rescue/
 
-      return "#{comm}def #{name}#{args}\n#{body}\nend".gsub(/\n\s*\n+/, LF)
+      "#{comm}def #{name}#{args}\n#{body}\nend".gsub(/\n\s*\n+/, LF)
     end
 
     def process_defs(exp) # :nodoc:
@@ -443,7 +443,7 @@ module Sexp2Ruby
       body.sub!(/\n\s*end\z/, '')
       body = indent(body) unless body =~ /(^|\n)rescue/
 
-      return "#{body}\nensure\n#{indent ens}"
+      "#{body}\nensure\n#{indent ens}"
     end
 
     def process_evstr(exp) # :nodoc:
@@ -479,7 +479,7 @@ module Sexp2Ruby
     end
 
     def process_gvar(exp) # :nodoc:
-      return exp.shift.to_s
+      exp.shift.to_s
     end
 
     def process_hash(exp) # :nodoc:
@@ -509,7 +509,7 @@ module Sexp2Ruby
         end
       end
 
-      return result.empty? ? "{}" : "{ #{result.join(', ')} }"
+      result.empty? ? "{}" : "{ #{result.join(', ')} }"
     end
 
     def process_iasgn(exp) # :nodoc:
@@ -813,12 +813,10 @@ module Sexp2Ruby
     end
 
     def process_return(exp) # :nodoc:
-      # HACK return "return" + (exp.empty? ? "" : " #{process exp.shift}")
-
       if exp.empty? then
-        return "return"
+        "return"
       else
-        return "return #{process exp.shift}"
+        "return #{process exp.shift}"
       end
     end
 
@@ -839,7 +837,7 @@ module Sexp2Ruby
     end
 
     def process_str(exp) # :nodoc:
-      return exp.shift.dump
+      exp.shift.dump
     end
 
     def process_super(exp) # :nodoc:
