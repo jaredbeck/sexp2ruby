@@ -463,7 +463,7 @@ module Sexp2Ruby
 
       it "binary_operators" do
         # (1 > 2)
-        Processor::BINARY.each do |op|
+        Node::Call::BINARY.each do |op|
           inn = s(:call, s(:lit, 1), op, s(:lit, 2))
           out = "(1 #{op} 2)"
           compare(inn, out, processor)

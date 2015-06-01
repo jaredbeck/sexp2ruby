@@ -6,6 +6,8 @@ It is a fork of [ruby2ruby][1] with slightly different goals.
 
 - Generates ruby that follows [ruby-style-guide][3] where possible
 - Prefers OO design over performance
+- Drops support for ruby 1.8.7
+- Depends on [activesupport][4]
 - Uses bundler instead of hoe
 - Uses rspec instead of minitest
 
@@ -30,3 +32,4 @@ so `deep_clone` if you need to preserve it.
 [1]: https://github.com/seattlerb/ruby2ruby
 [2]: http://docs.seattlerb.org/ruby2ruby
 [3]: https://github.com/bbatsov/ruby-style-guide
+[4]: https://rubygems.org/gems/activesupport

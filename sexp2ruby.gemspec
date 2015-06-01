@@ -23,6 +23,7 @@ It is a fork of ruby2ruby with slightly different goals.
 
   spec.required_ruby_version = ">= 1.9.3"
 
+  spec.add_runtime_dependency "activesupport", "~> 4.2"
   spec.add_runtime_dependency "sexp_processor", "~> 4.6"
 
   spec.add_development_dependency "rspec-core", "~> 3.2"
