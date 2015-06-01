@@ -12,7 +12,6 @@ module Sexp2Ruby
     # binary operation messages
     BINARY = [:<=>, :==, :<, :>, :<=, :>=, :-, :+, :*, :/, :%, :<<, :>>, :**, :'!=']
 
-    ##
     # Nodes that represent assignment and probably need () around them.
     #
     # TODO: this should be replaced with full precedence support :/
@@ -33,7 +32,6 @@ module Sexp2Ruby
                     :rescue,
                    ]
 
-    ##
     # Some sexp types are OK without parens when appearing as hash values.
     # This list can include `:call`s because they're always printed with parens
     # around their arguments. For example:
@@ -58,7 +56,6 @@ module Sexp2Ruby
 
     attr_reader :hash_syntax
 
-    ##
     # Options:
     #
     # - `:hash_syntax` - either `:ruby18` or `:ruby19`
@@ -71,24 +68,21 @@ module Sexp2Ruby
       self.auto_shift_type = true
       self.strict = true
       self.expected = String
-
       @calls = []
-
-      # self.debug[:defn] = /zsuper/
     end
 
-    ############################################################
     # Processors
+    # ----------
 
-    def process_alias(exp) # :nodoc:
+    def process_alias(exp)
       parenthesize "alias #{process(exp.shift)} #{process(exp.shift)}"
     end
 
-    def process_and(exp) # :nodoc:
+    def process_and(exp)
       parenthesize "#{process exp.shift} and #{process exp.shift}"
     end
 
-    def process_arglist(exp) # custom made node # :nodoc:
+    def process_arglist(exp) # custom made node
       code = []
       until exp.empty? do
         arg = exp.shift
@@ -99,7 +93,7 @@ module Sexp2Ruby
       code.join ', '
     end
 
-    def process_args(exp) # :nodoc:
+    def process_args(exp)
       args = []
 
       until exp.empty? do
@@ -127,11 +121,11 @@ module Sexp2Ruby
       "(#{args.join ', '})"
     end
 
-    def process_array(exp) # :nodoc:
+    def process_array(exp)
       "[#{process_arglist(exp)}]"
     end
 
-    def process_attrasgn(exp) # :nodoc:
+    def process_attrasgn(exp)
       receiver = process exp.shift
       name = exp.shift
       rhs  = exp.pop
@@ -153,12 +147,12 @@ module Sexp2Ruby
       end
     end
 
-    def process_back_ref(exp) # :nodoc:
+    def process_back_ref(exp)
       "$#{exp.shift}"
     end
 
     # TODO: figure out how to do rescue and ensure ENTIRELY w/o begin
-    def process_begin(exp) # :nodoc:
+    def process_begin(exp)
       code = []
       code << "begin"
       until exp.empty?
@@ -170,7 +164,7 @@ module Sexp2Ruby
       code.join(LF)
     end
 
-    def process_block(exp) # :nodoc:
+    def process_block(exp)
       result = []
 
       exp << nil if exp.empty?
@@ -189,13 +183,13 @@ module Sexp2Ruby
       result
     end
 
-    def process_block_pass exp # :nodoc:
+    def process_block_pass exp
       raise "huh?: #{exp.inspect}" if exp.size > 1
 
       "&#{process exp.shift}"
     end
 
-    def process_break(exp) # :nodoc:
+    def process_break(exp)
       val = exp.empty? ? nil : process(exp.shift)
       if val
         "break #{val}"
@@ -204,7 +198,7 @@ module Sexp2Ruby
       end
     end
 
-    def process_call(exp) # :nodoc:
+    def process_call(exp)
       receiver_node_type = exp.first.nil? ? nil : exp.first.first
       receiver = process exp.shift
       receiver = "(#{receiver})" if ASSIGN_NODES.include? receiver_node_type
@@ -265,7 +259,7 @@ module Sexp2Ruby
       @calls.pop
     end
 
-    def process_case(exp) # :nodoc:
+    def process_case(exp)
       result = []
       expr = process exp.shift
       if expr
@@ -287,7 +281,7 @@ module Sexp2Ruby
       result.join(LF)
     end
 
-    def process_cdecl(exp) # :nodoc:
+    def process_cdecl(exp)
       lhs = exp.shift
       lhs = process lhs if Sexp === lhs
 
@@ -299,39 +293,39 @@ module Sexp2Ruby
       end
     end
 
-    def process_class(exp) # :nodoc:
+    def process_class(exp)
       "#{exp.comments}class #{util_module_or_class(exp, true)}"
     end
 
-    def process_colon2(exp) # :nodoc:
+    def process_colon2(exp)
       "#{process(exp.shift)}::#{exp.shift}"
     end
 
-    def process_colon3(exp) # :nodoc:
+    def process_colon3(exp)
       "::#{exp.shift}"
     end
 
-    def process_const(exp) # :nodoc:
+    def process_const(exp)
       exp.shift.to_s
     end
 
-    def process_cvar(exp) # :nodoc:
+    def process_cvar(exp)
       "#{exp.shift}"
     end
 
-    def process_cvasgn(exp) # :nodoc:
+    def process_cvasgn(exp)
       "#{exp.shift} = #{process(exp.shift)}"
     end
 
-    def process_cvdecl(exp) # :nodoc:
+    def process_cvdecl(exp)
       "#{exp.shift} = #{process(exp.shift)}"
     end
 
-    def process_defined(exp) # :nodoc:
+    def process_defined(exp)
       "defined? #{process(exp.shift)}"
     end
 
-    def process_defn(exp) # :nodoc:
+    def process_defn(exp)
       type1 = exp[1].first
       type2 = exp[2].first rescue nil
       expect = [:ivar, :iasgn, :attrset]
@@ -392,7 +386,7 @@ module Sexp2Ruby
       "#{comm}def #{name}#{args}\n#{body}\nend".gsub(/\n\s*\n+/, LF)
     end
 
-    def process_defs(exp) # :nodoc:
+    def process_defs(exp)
       lhs  = exp.shift
       var = [:self, :cvar, :dvar, :ivar, :gvar, :lvar].include? lhs.first
       name = exp.shift
@@ -404,36 +398,36 @@ module Sexp2Ruby
       process_defn(exp)
     end
 
-    def process_dot2(exp) # :nodoc:
+    def process_dot2(exp)
       "(#{process exp.shift}..#{process exp.shift})"
     end
 
-    def process_dot3(exp) # :nodoc:
+    def process_dot3(exp)
       "(#{process exp.shift}...#{process exp.shift})"
     end
 
-    def process_dregx(exp) # :nodoc:
+    def process_dregx(exp)
       options = re_opt exp.pop if Fixnum === exp.last
       "/" << util_dthing(:dregx, exp) << "/#{options}"
     end
 
-    def process_dregx_once(exp) # :nodoc:
+    def process_dregx_once(exp)
       process_dregx(exp) + "o"
     end
 
-    def process_dstr(exp) # :nodoc:
+    def process_dstr(exp)
       "\"#{util_dthing(:dstr, exp)}\""
     end
 
-    def process_dsym(exp) # :nodoc:
+    def process_dsym(exp)
       ":\"#{util_dthing(:dsym, exp)}\""
     end
 
-    def process_dxstr(exp) # :nodoc:
+    def process_dxstr(exp)
       "`#{util_dthing(:dxstr, exp)}`"
     end
 
-    def process_ensure(exp) # :nodoc:
+    def process_ensure(exp)
       body = process exp.shift
       ens  = exp.shift
       ens  = nil if ens == s(:nil)
@@ -446,23 +440,23 @@ module Sexp2Ruby
       "#{body}\nensure\n#{indent ens}"
     end
 
-    def process_evstr(exp) # :nodoc:
+    def process_evstr(exp)
       exp.empty? ? '' : process(exp.shift)
     end
 
-    def process_false(exp) # :nodoc:
+    def process_false(exp)
       "false"
     end
 
-    def process_flip2(exp) # :nodoc:
+    def process_flip2(exp)
       "#{process(exp.shift)}..#{process(exp.shift)}"
     end
 
-    def process_flip3(exp) # :nodoc:
+    def process_flip3(exp)
       "#{process(exp.shift)}...#{process(exp.shift)}"
     end
 
-    def process_for(exp) # :nodoc:
+    def process_for(exp)
       recv = process exp.shift
       iter = process exp.shift
       body = exp.empty? ? nil : process(exp.shift)
@@ -474,15 +468,15 @@ module Sexp2Ruby
       result.join(LF)
     end
 
-    def process_gasgn(exp) # :nodoc:
+    def process_gasgn(exp)
       process_iasgn(exp)
     end
 
-    def process_gvar(exp) # :nodoc:
+    def process_gvar(exp)
       exp.shift.to_s
     end
 
-    def process_hash(exp) # :nodoc:
+    def process_hash(exp)
       result = []
 
       until exp.empty?
@@ -512,7 +506,7 @@ module Sexp2Ruby
       result.empty? ? "{}" : "{ #{result.join(', ')} }"
     end
 
-    def process_iasgn(exp) # :nodoc:
+    def process_iasgn(exp)
       lhs = exp.shift
       if exp.empty? # part of an masgn
         lhs.to_s
@@ -521,7 +515,7 @@ module Sexp2Ruby
       end
     end
 
-    def process_if(exp) # :nodoc:
+    def process_if(exp)
       expand = ASSIGN_NODES.include? exp.first.first
       c = process exp.shift
       t = process exp.shift
@@ -557,7 +551,7 @@ module Sexp2Ruby
       end
     end
 
-    def process_iter(exp) # :nodoc:
+    def process_iter(exp)
       iter = process exp.shift
       args = exp.shift
       body = exp.empty? ? nil : process(exp.shift)
@@ -604,7 +598,7 @@ module Sexp2Ruby
       result.join
     end
 
-    def process_ivar(exp) # :nodoc:
+    def process_ivar(exp)
       exp.shift.to_s
     end
 
@@ -612,13 +606,13 @@ module Sexp2Ruby
       "**#{process exp.shift}"
     end
 
-    def process_lasgn(exp) # :nodoc:
+    def process_lasgn(exp)
       s = "#{exp.shift}"
       s += " = #{process exp.shift}" unless exp.empty?
       s
     end
 
-    def process_lit(exp) # :nodoc:
+    def process_lit(exp)
       obj = exp.shift
       case obj
       when Range then
@@ -628,14 +622,13 @@ module Sexp2Ruby
       end
     end
 
-    def process_lvar(exp) # :nodoc:
+    def process_lvar(exp)
       exp.shift.to_s
     end
 
-    def process_masgn(exp) # :nodoc:
-      # s(:masgn, s(:array, s(:lasgn, :var), ...), s(:to_ary, <val>, ...))
-      # s(:iter, <call>, s(:args, s(:masgn, :a, :b)), <body>)
-
+    # s(:masgn, s(:array, s(:lasgn, :var), ...), s(:to_ary, <val>, ...))
+    # s(:iter, <call>, s(:args, s(:masgn, :a, :b)), <body>)
+    def process_masgn(exp)
       case exp.first
       when Sexp then
         lhs = exp.shift
@@ -673,17 +666,17 @@ module Sexp2Ruby
       end
     end
 
-    def process_match(exp) # :nodoc:
+    def process_match(exp)
       "#{process(exp.shift)}"
     end
 
-    def process_match2(exp) # :nodoc:
+    def process_match2(exp)
       lhs = process(exp.shift)
       rhs = process(exp.shift)
       "#{lhs} =~ #{rhs}"
     end
 
-    def process_match3(exp) # :nodoc:
+    def process_match3(exp)
       rhs = process(exp.shift)
       left_type = exp.first.sexp_type
       lhs = process(exp.shift)
@@ -695,11 +688,11 @@ module Sexp2Ruby
       end
     end
 
-    def process_module(exp) # :nodoc:
+    def process_module(exp)
       "#{exp.comments}module #{util_module_or_class(exp)}"
     end
 
-    def process_next(exp) # :nodoc:
+    def process_next(exp)
       val = exp.empty? ? nil : process(exp.shift)
       if val
         "next #{val}"
@@ -708,20 +701,20 @@ module Sexp2Ruby
       end
     end
 
-    def process_nil(exp) # :nodoc:
+    def process_nil(exp)
       "nil"
     end
 
-    def process_not(exp) # :nodoc:
+    def process_not(exp)
       "(not #{process exp.shift})"
     end
 
-    def process_nth_ref(exp) # :nodoc:
+    def process_nth_ref(exp)
       "$#{exp.shift}"
     end
 
-    def process_op_asgn1(exp) # :nodoc:
-      # [[:lvar, :b], [:arglist, [:lit, 1]], :"||", [:lit, 10]]
+    # [[:lvar, :b], [:arglist, [:lit, 1]], :"||", [:lit, 10]]
+    def process_op_asgn1(exp)
       lhs = process(exp.shift)
       index = process(exp.shift)
       msg = exp.shift
@@ -730,8 +723,8 @@ module Sexp2Ruby
       "#{lhs}[#{index}] #{msg}= #{rhs}"
     end
 
-    def process_op_asgn2(exp) # :nodoc:
-      # [[:lvar, :c], :var=, :"||", [:lit, 20]]
+    # [[:lvar, :c], :var=, :"||", [:lit, 20]]
+    def process_op_asgn2(exp)
       lhs = process(exp.shift)
       index = exp.shift.to_s[0..-2]
       msg = exp.shift
@@ -741,33 +734,33 @@ module Sexp2Ruby
       "#{lhs}.#{index} #{msg}= #{rhs}"
     end
 
-    def process_op_asgn_and(exp) # :nodoc:
-      # a &&= 1
-      # [[:lvar, :a], [:lasgn, :a, [:lit, 1]]]
+    # a &&= 1
+    # [[:lvar, :a], [:lasgn, :a, [:lit, 1]]]
+    def process_op_asgn_and(exp)
       exp.shift
       process(exp.shift).sub(/\=/, '&&=')
     end
 
-    def process_op_asgn_or(exp) # :nodoc:
-      # a ||= 1
-      # [[:lvar, :a], [:lasgn, :a, [:lit, 1]]]
+    # a ||= 1
+    # [[:lvar, :a], [:lasgn, :a, [:lit, 1]]]
+    def process_op_asgn_or(exp)
       exp.shift
       process(exp.shift).sub(/\=/, '||=')
     end
 
-    def process_or(exp) # :nodoc:
+    def process_or(exp)
       "(#{process exp.shift} or #{process exp.shift})"
     end
 
-    def process_postexe(exp) # :nodoc:
+    def process_postexe(exp)
       "END"
     end
 
-    def process_redo(exp) # :nodoc:
+    def process_redo(exp)
       "redo"
     end
 
-    def process_resbody exp # :nodoc:
+    def process_resbody exp
       args = exp.shift
       body = finish(exp)
       body << "# do nothing" if body.empty?
@@ -781,7 +774,7 @@ module Sexp2Ruby
       "rescue#{args}\n#{indent body.join(LF)}"
     end
 
-    def process_rescue exp # :nodoc:
+    def process_rescue exp
       body = process(exp.shift) unless exp.first.first == :resbody
       els  = process(exp.pop)   unless exp.last.first  == :resbody
 
@@ -808,11 +801,11 @@ module Sexp2Ruby
       end
     end
 
-    def process_retry(exp) # :nodoc:
+    def process_retry(exp)
       "retry"
     end
 
-    def process_return(exp) # :nodoc:
+    def process_return(exp)
       if exp.empty?
         "return"
       else
@@ -820,15 +813,15 @@ module Sexp2Ruby
       end
     end
 
-    def process_sclass(exp) # :nodoc:
+    def process_sclass(exp)
       "class << #{process(exp.shift)}\n#{indent(process_block(exp))}\nend"
     end
 
-    def process_self(exp) # :nodoc:
+    def process_self(exp)
       "self"
     end
 
-    def process_splat(exp) # :nodoc:
+    def process_splat(exp)
       if exp.empty?
         "*"
       else
@@ -836,17 +829,17 @@ module Sexp2Ruby
       end
     end
 
-    def process_str(exp) # :nodoc:
+    def process_str(exp)
       exp.shift.dump
     end
 
-    def process_super(exp) # :nodoc:
+    def process_super(exp)
       args = finish exp
 
       "super(#{args.join(', ')})"
     end
 
-    def process_svalue(exp) # :nodoc:
+    def process_svalue(exp)
       code = []
       until exp.empty? do
         code << process(exp.shift)
@@ -854,27 +847,27 @@ module Sexp2Ruby
       code.join(", ")
     end
 
-    def process_to_ary(exp) # :nodoc:
+    def process_to_ary(exp)
       process(exp.shift)
     end
 
-    def process_true(exp) # :nodoc:
+    def process_true(exp)
       "true"
     end
 
-    def process_undef(exp) # :nodoc:
+    def process_undef(exp)
       "undef #{process(exp.shift)}"
     end
 
-    def process_until(exp) # :nodoc:
+    def process_until(exp)
       cond_loop(exp, 'until')
     end
 
-    def process_valias(exp) # :nodoc:
+    def process_valias(exp)
       "alias #{exp.shift} #{exp.shift}"
     end
 
-    def process_when(exp) # :nodoc:
+    def process_when(exp)
       src = []
 
       if self.context[1] == :array # ugh. matz! why not an argscat?!?
@@ -893,15 +886,15 @@ module Sexp2Ruby
       src.join(LF)
     end
 
-    def process_while(exp) # :nodoc:
+    def process_while(exp)
       cond_loop(exp, 'while')
     end
 
-    def process_xstr(exp) # :nodoc:
+    def process_xstr(exp)
       "`#{process_str(exp)[1..-2]}`"
     end
 
-    def process_yield(exp) # :nodoc:
+    def process_yield(exp)
       args = []
       until exp.empty? do
         args << process(exp.shift)
@@ -914,14 +907,14 @@ module Sexp2Ruby
       end
     end
 
-    def process_zsuper(exp) # :nodoc:
+    def process_zsuper(exp)
       "super"
     end
 
-    ############################################################
-    # Rewriters:
+    # Rewriters
+    # ---------
 
-    def rewrite_attrasgn exp # :nodoc:
+    def rewrite_attrasgn exp
       if context.first(2) == [:array, :masgn]
         exp[0] = :call
         exp[2] = exp[2].to_s.sub(/=$/, '').to_sym
@@ -930,19 +923,19 @@ module Sexp2Ruby
       exp
     end
 
-    def rewrite_ensure exp # :nodoc:
+    def rewrite_ensure exp
       exp = s(:begin, exp) unless context.first == :begin
       exp
     end
 
-    def rewrite_resbody exp # :nodoc:
+    def rewrite_resbody exp
       raise "no exception list in #{exp.inspect}" unless exp.size > 2 && exp[1]
       raise exp[1].inspect if exp[1][0] != :array
       # for now, do nothing, just check and freak if we see an errant structure
       exp
     end
 
-    def rewrite_rescue exp # :nodoc:
+    def rewrite_rescue exp
       complex = false
       complex ||= exp.size > 3
       complex ||= exp.resbody.block
@@ -958,7 +951,7 @@ module Sexp2Ruby
       exp
     end
 
-    def rewrite_svalue(exp) # :nodoc:
+    def rewrite_svalue(exp)
       case exp.last.first
       when :array
         s(:svalue, *exp[1][1..-1])
@@ -969,8 +962,8 @@ module Sexp2Ruby
       end
     end
 
-    ############################################################
-    # Utility Methods:
+    # Utility Methods
+    # ---------------
 
     def check_option_keys(option)
       diff = option.keys - CONSTRUCTOR_OPTIONS
@@ -979,9 +972,7 @@ module Sexp2Ruby
       end
     end
 
-    ##
     # Generate a post-or-pre conditional loop.
-
     def cond_loop(exp, name)
       cond = process(exp.shift)
       body = process(exp.shift)
@@ -1002,9 +993,7 @@ module Sexp2Ruby
       code.join(LF)
     end
 
-    ##
-    # Utility method to escape something interpolated.
-
+    # Escape something interpolated.
     def dthing_escape type, lit
       lit = lit.gsub(/\n/, '\n')
       case type
@@ -1019,10 +1008,8 @@ module Sexp2Ruby
       end
     end
 
-    ##
     # Check that `value` is in `array` of valid option values,
     # or raise InvalidOption.  If `value` is nil, return `default`.
-
     def extract_option(array, value, default)
       if value.nil?
         default
@@ -1033,10 +1020,8 @@ module Sexp2Ruby
       end
     end
 
-    ##
     # Process all the remaining stuff in +exp+ and return the results
     # sans-nils.
-
     def finish exp # REFACTOR: work this out of the rest of the processors
       body = []
       until exp.empty? do
@@ -1045,27 +1030,21 @@ module Sexp2Ruby
       body.compact
     end
 
-    ##
     # Given `exp` representing the left side of a hash pair, return true
     # if it is compatible with the ruby 1.9 hash syntax.  For example,
     # the symbol `:foo` is compatible, but the literal `7` is not.  Note
     # that strings are not considered "compatible".  If we converted string
     # keys to symbol keys, we wouldn't be faithfully representing the input.
-
     def ruby19_hash_key?(exp)
       exp.sexp_type == :lit && exp.length == 2 && RUBY_19_HASH_KEY === exp[1].to_s
     end
 
-    ##
     # Indent all lines of +s+ to the current indent level.
-
     def indent(s)
       s.to_s.split(/\n/).map{|line| @indent + line}.join(LF)
     end
 
-    ##
     # Wrap appropriate expressions in matching parens.
-
     def parenthesize exp
       case self.context[1]
       when nil, :defn, :defs, :class, :sclass, :if, :iter, :resbody, :when, :while then
@@ -1075,25 +1054,19 @@ module Sexp2Ruby
       end
     end
 
-    ##
     # Return the appropriate regexp flags for a given numeric code.
-
     def re_opt options
       bits = (0..8).map { |n| options[n] * 2**n }
       bits.delete 0
       bits.map { |n| Regexp::CODES[n] }.join
     end
 
-    ##
     # Return a splatted symbol for +sym+.
-
     def splat(sym)
       :"*#{sym}"
     end
 
-    ##
-    # Utility method to generate something interpolated.
-
+    # Generate something interpolated.
     def util_dthing(type, exp)
       s = []
 
@@ -1120,9 +1093,7 @@ module Sexp2Ruby
       s.join
     end
 
-    ##
     # Utility method to generate ether a module or class.
-
     def util_module_or_class(exp, is_class=false)
       result = []
 
