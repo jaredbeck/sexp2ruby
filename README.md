@@ -1,6 +1,8 @@
 sexp2ruby
 =========
 
+[![Build Status][5]][6]
+
 `sexp2ruby` generates ruby from RubyParser S-expressions.
 It is a fork of [ruby2ruby][1] with slightly different goals.
 
@@ -33,3 +35,5 @@ so `deep_clone` if you need to preserve it.
 [2]: http://docs.seattlerb.org/ruby2ruby
 [3]: https://github.com/bbatsov/ruby-style-guide
 [4]: https://rubygems.org/gems/activesupport
+[5]: https://travis-ci.org/jaredbeck/sexp2ruby.svg
+[6]: https://travis-ci.org/jaredbeck/sexp2ruby
