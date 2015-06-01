@@ -1,7 +1,7 @@
 sexp2ruby
 =========
 
-[![Build Status][5]][6]
+[![Build Status][5]][6] [![Code Climate][7]][8]
 
 `sexp2ruby` generates ruby from RubyParser S-expressions.
 It is a fork of [ruby2ruby][1] with slightly different goals.
@@ -37,3 +37,5 @@ so `deep_clone` if you need to preserve it.
 [4]: https://rubygems.org/gems/activesupport
 [5]: https://travis-ci.org/jaredbeck/sexp2ruby.svg
 [6]: https://travis-ci.org/jaredbeck/sexp2ruby
+[7]: https://codeclimate.com/github/jaredbeck/sexp2ruby/badges/gpa.svg
+[8]: https://codeclimate.com/github/jaredbeck/sexp2ruby
