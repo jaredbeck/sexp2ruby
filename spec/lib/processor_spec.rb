@@ -113,7 +113,7 @@ module Sexp2Ruby
           end
 
           it "wraps method call with block (iter) in parens" do
-            iter = s(:iter, s(:call, nil, :foo), s(:args), s(:str, "bar"))
+            iter = s(:iter, s(:call, nil, :foo), 0, s(:str, "bar"))
             inp = s(:hash, s(:lit, :k), iter)
             out = '{ :k => (foo { "bar" }) }'
             compare(inp, out, processor, false)

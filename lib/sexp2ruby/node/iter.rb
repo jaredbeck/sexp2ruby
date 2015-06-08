@@ -8,11 +8,9 @@ module Sexp2Ruby
 
         args = case args
         when 0 then
-          " ||"
+          ""
         else
-          a = process(args)[1..-2]
-          a = " |#{a}|" unless a.empty?
-          a
+          " |#{process(args)[1..-2]}|"
         end
 
         b, e = if iter == "END"
