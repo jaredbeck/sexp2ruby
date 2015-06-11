@@ -12,6 +12,7 @@ module Sexp2Ruby
       HASH_VAL_NO_PAREN = [
         :call,
         :false,
+        :hash,
         :lit,
         :lvar,
         :nil,

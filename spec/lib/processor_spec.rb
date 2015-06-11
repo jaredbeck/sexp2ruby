@@ -112,6 +112,12 @@ module Sexp2Ruby
             compare(inp, out, processor)
           end
 
+          it "does not wrap hash in parens" do
+            inp = s(:hash, s(:lit, :a), s(:hash, s(:lit, :b), s(:nil)))
+            out = "{ :a => { :b => nil } }"
+            compare(inp, out, processor)
+          end
+
           it "wraps method call with block (iter) in parens" do
             iter = s(:iter, s(:call, nil, :foo), 0, s(:str, "bar"))
             inp = s(:hash, s(:lit, :k), iter)
