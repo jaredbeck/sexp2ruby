@@ -6,10 +6,10 @@ sexp2ruby
 `sexp2ruby` generates ruby from RubyParser S-expressions.
 It is a fork of [ruby2ruby][1] with slightly different goals.
 
-- Generates ruby that follows [ruby-style-guide][3] where possible
+- Follows [ruby-style-guide][3] where possible
 - Prefers OO design over performance
 - Drops support for ruby 1.8.7
-- Depends on [activesupport][4]
+- Depends on (a small subset of) [activesupport][4]
 - Uses bundler instead of hoe
 - Uses rspec instead of minitest
 
@@ -29,7 +29,7 @@ Sexp2Ruby::Processor.new.process(sexp.deep_clone)
 ```
 
 As with all `SexpProcessor`s, `Sexp2Ruby#process` destroys its input,
-so `deep_clone` if you need to preserve it.
+so `deep_clone` as shown above if you need to preserve it.
 
 [1]: https://github.com/seattlerb/ruby2ruby
 [2]: http://docs.seattlerb.org/ruby2ruby
