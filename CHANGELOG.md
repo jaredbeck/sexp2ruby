@@ -7,9 +7,14 @@ of [keepachangelog.com][2].
 0.0.2 (unreleased)
 -----
 
+### Changed
+- Configuration
+  - Changed default of `:hash_syntax` from `:ruby18` to `:ruby19`
+
 ### Added
 - Do not wrap subhash in parentheses
-- Configuration: `:no_paren_methods` omit argument parentheses
+- Configuration
+  - Added `:no_paren_methods` omit argument parentheses
 
 0.0.1
 -----

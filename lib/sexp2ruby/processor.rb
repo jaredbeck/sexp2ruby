@@ -125,14 +125,14 @@ module Sexp2Ruby
 
     # Options:
     #
-    # - `:hash_syntax` - either `:ruby18` or `:ruby19`
+    # - `:hash_syntax` - either `:ruby18` or `:ruby19`.  Default is `:ruby19`.
     # - `:no_paren_methods` - an array of symbols, these methods
-    #   will omit argument parentheses
+    #   will omit argument parentheses.  Default is `[]`.
 
     def initialize(option = {})
       super()
       check_option_keys(option)
-      @hash_syntax = extract_option(HASH_SYNTAXES, option[:hash_syntax], :ruby18)
+      @hash_syntax = extract_option(HASH_SYNTAXES, option[:hash_syntax], :ruby19)
       @no_paren_methods = option[:no_paren_methods] || []
       @indent_lvl = "  "
       self.auto_shift_type = true

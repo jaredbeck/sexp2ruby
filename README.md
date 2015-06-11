@@ -44,9 +44,9 @@ Sexp2Ruby::Processor.new(hash_syntax: :ruby19).process
 # => "{ a: 1 }"
 ```
 
-- `:hash_syntax` - either `:ruby18` or `:ruby19`
+- `:hash_syntax` - either `:ruby18` or `:ruby19`. Default is `:ruby19`.
 - `:no_paren_methods` - an array of symbols, these methods
-  will omit argument parentheses
+  will omit argument parentheses. Default is `[]`.
 
 [1]: https://github.com/seattlerb/ruby2ruby
 [2]: http://docs.seattlerb.org/ruby2ruby

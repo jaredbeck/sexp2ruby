@@ -65,7 +65,7 @@ module Sexp2Ruby
           inn = s(:call, nil, :f,
             s(:lit, 1),
             s(:hash, s(:lit, :kw), s(:lit, 2), s(:kwsplat, s(:lit, 3))))
-          out = "f(1, :kw => 2, **3)"
+          out = "f(1, kw: 2, **3)"
 
           compare(inn, out, processor)
         end
@@ -470,17 +470,13 @@ module Sexp2Ruby
       end
 
       it "call_binary_call_with_hash_arg" do
-        # if 42
-        #   args << {:key => 24}
-        # end
-
         inn = s(:if, s(:lit, 42),
           s(:call, s(:call, nil, :args),
             :<<,
             s(:hash, s(:lit, :key), s(:lit, 24))),
           nil)
 
-        out = "(args << { :key => 24 }) if 42"
+        out = "(args << { key: 24 }) if 42"
 
         compare(inn, out, processor)
       end
