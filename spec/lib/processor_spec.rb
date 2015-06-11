@@ -54,6 +54,85 @@ module Sexp2Ruby
     end
 
     describe "#process" do
+      context "call" do
+        it "kwsplat" do
+          inn = s(:call, nil, :test_splat, s(:hash, s(:kwsplat, s(:call, nil, :testing))))
+          out = "test_splat(**testing)"
+          compare(inn, out, processor)
+        end
+
+        it "arg_assoc_kwsplat" do
+          inn = s(:call, nil, :f,
+            s(:lit, 1),
+            s(:hash, s(:lit, :kw), s(:lit, 2), s(:kwsplat, s(:lit, 3))))
+          out = "f(1, :kw => 2, **3)"
+
+          compare(inn, out, processor)
+        end
+
+        it "kwsplat_x" do
+          inn = s(:call, nil, :a, s(:hash, s(:kwsplat, s(:lit, 1))))
+          out = "a(**1)"
+
+          compare(inn, out, processor)
+        end
+
+        it "self_index" do
+          compare(s(:call, nil, :[], s(:lit, 42)), "self[42]", processor)
+        end
+
+        it "self_index_equals" do
+          inp = s(:attrasgn, s(:self), :[]=, s(:lit, 42), s(:lit, 24))
+          compare(inp, "self[42] = 24", processor)
+        end
+
+        it "self_index_equals_array" do
+          inp = s(:attrasgn, s(:self), :[]=, s(:lit, 1), s(:lit, 2), s(:lit, 3))
+          compare(inp, "self[1, 2] = 3", processor)
+        end
+
+        it "arglist_hash_first" do
+          inn = s(:call, nil, :method,
+            s(:hash, s(:lit, :a), s(:lit, 1)),
+            s(:call, nil, :b))
+          out = "method({ :a => 1 }, b)"
+
+          compare(inn, out, processor)
+        end
+
+        it "arglist_hash_first_last" do
+          inn = s(:call, nil, :method,
+            s(:hash, s(:lit, :a), s(:lit, 1)),
+            s(:call, nil, :b),
+            s(:hash, s(:lit, :c), s(:lit, 1)))
+          out = "method({ :a => 1 }, b, :c => 1)"
+
+          compare(inn, out, processor)
+        end
+
+        it "arglist_hash_last" do
+          inn = s(:call, nil, :method,
+            s(:call, nil, :b),
+            s(:hash, s(:lit, :a), s(:lit, 1)))
+          out = "method(b, :a => 1)"
+
+          compare(inn, out, processor)
+        end
+
+        it "arglist_if" do
+          inn = s(:call,
+            s(:call, nil, :a),
+            :+,
+            s(:if,
+              s(:call, nil, :b),
+              s(:call, nil, :c),
+              s(:call, nil, :d)))
+
+          out = "(a + (b ? (c) : (d)))"
+          compare(inn, out, processor)
+        end
+      end
+
       context "hash" do
         it "ruby19_one_pair" do
           inp = s(:hash, s(:lit, :foo), s(:str, "bar"))
@@ -205,28 +284,6 @@ module Sexp2Ruby
         compare(inp, '/blah\/blah/', processor, false, /blah\/blah/)
       end
 
-      it "call_kwsplat" do
-        inn = s(:call, nil, :test_splat, s(:hash, s(:kwsplat, s(:call, nil, :testing))))
-        out = "test_splat(**testing)"
-        compare(inn, out, processor)
-      end
-
-      it "call_arg_assoc_kwsplat" do
-        inn = s(:call, nil, :f,
-          s(:lit, 1),
-          s(:hash, s(:lit, :kw), s(:lit, 2), s(:kwsplat, s(:lit, 3))))
-        out = "f(1, :kw => 2, **3)"
-
-        compare(inn, out, processor)
-      end
-
-      it "call_kwsplat_x" do
-        inn = s(:call, nil, :a, s(:hash, s(:kwsplat, s(:lit, 1))))
-        out = "a(**1)"
-
-        compare(inn, out, processor)
-      end
-
       it "defn_kwargs" do
         inn = s(:defn, :initialize,
           s(:args, :arg, s(:kwarg, :keyword, s(:nil)), :"**args"),
@@ -245,61 +302,6 @@ module Sexp2Ruby
           s(:nil))
         out = "def initialize(arg, kw1: nil, kw2: nil, **args)\n  # do nothing\nend"
 
-        compare(inn, out, processor)
-      end
-
-      it "call_self_index" do
-        compare(s(:call, nil, :[], s(:lit, 42)), "self[42]", processor)
-      end
-
-      it "call_self_index_equals" do
-        inp = s(:attrasgn, s(:self), :[]=, s(:lit, 42), s(:lit, 24))
-        compare(inp, "self[42] = 24", processor)
-      end
-
-      it "call_self_index_equals_array" do
-        inp = s(:attrasgn, s(:self), :[]=, s(:lit, 1), s(:lit, 2), s(:lit, 3))
-        compare(inp, "self[1, 2] = 3", processor)
-      end
-
-      it "call_arglist_hash_first" do
-        inn = s(:call, nil, :method,
-          s(:hash, s(:lit, :a), s(:lit, 1)),
-          s(:call, nil, :b))
-        out = "method({ :a => 1 }, b)"
-
-        compare(inn, out, processor)
-      end
-
-      it "call_arglist_hash_first_last" do
-        inn = s(:call, nil, :method,
-          s(:hash, s(:lit, :a), s(:lit, 1)),
-          s(:call, nil, :b),
-          s(:hash, s(:lit, :c), s(:lit, 1)))
-        out = "method({ :a => 1 }, b, :c => 1)"
-
-        compare(inn, out, processor)
-      end
-
-      it "call_arglist_hash_last" do
-        inn = s(:call, nil, :method,
-          s(:call, nil, :b),
-          s(:hash, s(:lit, :a), s(:lit, 1)))
-        out = "method(b, :a => 1)"
-
-        compare(inn, out, processor)
-      end
-
-      it "call_arglist_if" do
-        inn = s(:call,
-          s(:call, nil, :a),
-          :+,
-          s(:if,
-            s(:call, nil, :b),
-            s(:call, nil, :c),
-            s(:call, nil, :d)))
-
-        out = "(a + (b ? (c) : (d)))"
         compare(inn, out, processor)
       end
 
