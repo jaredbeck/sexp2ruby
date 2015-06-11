@@ -29,7 +29,10 @@ module Sexp2Ruby
     HASH_SYNTAXES = [:ruby18, :ruby19]
     RUBY_19_HASH_KEY = /\A[a-z][_a-zA-Z0-9]+\Z/
 
-    CONSTRUCTOR_OPTIONS = [:hash_syntax]
+    CONSTRUCTOR_OPTIONS = [
+      :hash_syntax,
+      :no_paren_methods
+    ]
 
     NODES = [
       :alias,
@@ -118,16 +121,19 @@ module Sexp2Ruby
       :zsuper
     ]
 
-    attr_reader :hash_syntax, :indent_lvl
+    attr_reader :hash_syntax, :indent_lvl, :no_paren_methods
 
     # Options:
     #
     # - `:hash_syntax` - either `:ruby18` or `:ruby19`
+    # - `:no_paren_methods` - an array of symbols, these methods
+    #   will omit argument parentheses
 
     def initialize(option = {})
       super()
       check_option_keys(option)
       @hash_syntax = extract_option(HASH_SYNTAXES, option[:hash_syntax], :ruby18)
+      @no_paren_methods = option[:no_paren_methods] || []
       @indent_lvl = "  "
       self.auto_shift_type = true
       self.strict = true

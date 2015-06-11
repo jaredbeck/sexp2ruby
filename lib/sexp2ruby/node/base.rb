@@ -17,6 +17,7 @@ module Sexp2Ruby
         :indent,
         :indent_lvl,
         :finish,
+        :no_paren_methods,
         :parenthesize,
         :process,
         :process_arglist,

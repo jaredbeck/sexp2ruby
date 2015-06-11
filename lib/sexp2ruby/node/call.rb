@@ -56,14 +56,28 @@ module Sexp2Ruby
         when :"+@" then
           "+#{receiver}"
         else
-          args     = nil                    if args.empty?
-          args     = "(#{args.join(', ')})" if args
-          receiver = "#{receiver}."         if receiver
-
+          args = arguments(args, name)
+          receiver = "#{receiver}." if receiver
           "#{receiver}#{name}#{args}"
         end
       ensure
         call_pop
+      end
+
+      private
+
+      def arguments(args, name)
+        if args.empty?
+          ""
+        else
+          fmt = argument_parentheses?(name) ? "(%s)" : " %s"
+          str = "#{args.join(', ')}"
+          fmt % str
+        end
+      end
+
+      def argument_parentheses?(name)
+        !no_paren_methods.include?(name.to_sym)
       end
     end
   end

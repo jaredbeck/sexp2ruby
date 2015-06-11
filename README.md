@@ -31,6 +31,23 @@ Sexp2Ruby::Processor.new.process(sexp.deep_clone)
 As with all `SexpProcessor`s, `Sexp2Ruby#process` destroys its input,
 so `deep_clone` as shown above if you need to preserve it.
 
+Configuration
+-------------
+
+Configure output by passing options to `Sexp2Ruby::Processor.new`:
+
+```ruby
+hash = s(:hash, s(:lit, :a), s(:lit, 1))
+Sexp2Ruby::Processor.new(hash_syntax: :ruby18).process
+# => "{ :a => 1 }"
+Sexp2Ruby::Processor.new(hash_syntax: :ruby19).process
+# => "{ a: 1 }"
+```
+
+- `:hash_syntax` - either `:ruby18` or `:ruby19`
+- `:no_paren_methods` - an array of symbols, these methods
+  will omit argument parentheses
+
 [1]: https://github.com/seattlerb/ruby2ruby
 [2]: http://docs.seattlerb.org/ruby2ruby
 [3]: https://github.com/bbatsov/ruby-style-guide

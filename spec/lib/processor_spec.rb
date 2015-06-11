@@ -131,6 +131,22 @@ module Sexp2Ruby
           out = "(a + (b ? (c) : (d)))"
           compare(inn, out, processor)
         end
+
+        context "when configured to omit parentheses for method x" do
+          let(:processor) { described_class.new(no_paren_methods: [:x]) }
+
+          it "omits parentheses for method x" do
+            inp = s(:call, nil, :x, s(:lit, 1))
+            out = "x 1"
+            compare(inp, out, processor)
+          end
+
+          it "includes parentheses for method y" do
+            inp = s(:call, nil, :y, s(:lit, 1))
+            out = "y(1)"
+            compare(inp, out, processor)
+          end
+        end
       end
 
       context "hash" do

@@ -9,6 +9,7 @@ of [keepachangelog.com][2].
 
 ### Added
 - Do not wrap subhash in parentheses
+- Configuration: `:no_paren_methods` omit argument parentheses
 
 0.0.1
 -----
