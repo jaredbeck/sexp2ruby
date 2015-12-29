@@ -610,6 +610,28 @@ module Sexp2Ruby
         compare(Ruby18Parser.new.parse(rb3), rb1, processor)
         compare(Ruby19Parser.new.parse(rb3), rb2, processor)
       end
+
+      context "long lines" do
+        context "a 79 character method name" do
+          it "wraps" do
+            method_name = ("x" * 79).to_sym
+            argument = "y"
+            inn = s(:call, nil, method_name, s(:str, argument))
+            out = format("%s(\n  \"%s\"\n)", method_name, argument)
+            compare(inn, out, processor)
+          end
+        end
+
+        context "an 80 character method name" do
+          it "does not wrap" do
+            method_name = ("x" * 80).to_sym
+            argument = "y"
+            inn = s(:call, nil, method_name, s(:str, argument))
+            out = format("%s(\"%s\")", method_name, argument)
+            compare(inn, out, processor)
+          end
+        end
+      end
     end
 
     describe "#ruby19_hash_key?" do
