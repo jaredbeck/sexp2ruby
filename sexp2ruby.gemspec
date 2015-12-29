@@ -26,8 +26,8 @@ It is a fork of ruby2ruby with slightly different goals.
   spec.add_runtime_dependency "activesupport", "~> 4.2"
   spec.add_runtime_dependency "sexp_processor", "~> 4.6"
 
-  spec.add_development_dependency "rspec-core", "~> 3.2"
-  spec.add_development_dependency "rspec-expectations", "~> 3.2"
-  spec.add_development_dependency "rspec-mocks", "~> 3.2"
+  spec.add_development_dependency "rspec-core", "~> 3.4"
+  spec.add_development_dependency "rspec-expectations", "~> 3.4"
+  spec.add_development_dependency "rspec-mocks", "~> 3.4"
   spec.add_development_dependency "ruby_parser", "~> 3.7"
 end
