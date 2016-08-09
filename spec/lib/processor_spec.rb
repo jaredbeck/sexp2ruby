@@ -150,6 +150,14 @@ module Sexp2Ruby
       end
 
       context "iter" do
+        context "empty body" do
+          it "does not put spaces inside brackets" do
+            inp = s(:iter, s(:call, nil, :x, s(:lit, 1)), 0)
+            out = "x(1) {}"
+            compare(inp, out, processor)
+          end
+        end
+
         context "when configured to omit parentheses for method x" do
           it "uses do/end because brackets would be invalid" do
             pro = described_class.new(no_paren_methods: [:x])

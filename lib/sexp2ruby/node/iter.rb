@@ -51,11 +51,7 @@ module Sexp2Ruby
         result = []
         result << "#{iter} {"
         result << args
-        if body
-          result << " #{body.strip} "
-        else
-          result << ' '
-        end
+        result << (body ? " #{body.strip} " : "")
         result << "}"
         result = result.join
 

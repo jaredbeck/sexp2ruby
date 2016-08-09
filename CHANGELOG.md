@@ -16,6 +16,7 @@ None
 
 ### Fixed
 
+- Iter whitespace: an empty body should render as `{}`, not `{ }`.
 - A bug where a one-line iter whose call matches no_paren_methods produced
   invalid output. Example: `a B {}` is now `a B do\nend`
 
