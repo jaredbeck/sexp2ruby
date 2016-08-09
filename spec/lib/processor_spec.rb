@@ -149,6 +149,17 @@ module Sexp2Ruby
         end
       end
 
+      context "iter" do
+        context "when configured to omit parentheses for method x" do
+          it "uses do/end because brackets would be invalid" do
+            pro = described_class.new(no_paren_methods: [:x])
+            inp = s(:iter, s(:call, nil, :x, s(:lit, 1)), 0)
+            out = "x 1 do\nend"
+            compare(inp, out, pro)
+          end
+        end
+      end
+
       context "hash" do
         it "ruby19_one_pair" do
           inp = s(:hash, s(:lit, :foo), s(:str, "bar"))

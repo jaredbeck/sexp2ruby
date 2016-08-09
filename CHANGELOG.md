@@ -4,10 +4,24 @@ Change Log
 This project follows [semver 2.0.0][1] and the recommendations
 of [keepachangelog.com][2].
 
-0.0.3
------
+## 0.0.4
 
-### Changed
+### Breaking Changes
+
+None
+
+### Added
+
+None
+
+### Fixed
+
+- A bug where a one-line iter whose call matches no_paren_methods produced
+  invalid output. Example: `a B {}` is now `a B do\nend`
+
+## 0.0.3
+
+### Breaking Changes
 - Configuration
   - Changed default of `:hash_syntax` from `:ruby18` to `:ruby19`
 
@@ -16,14 +30,12 @@ of [keepachangelog.com][2].
 - Configuration
   - Added `:no_paren_methods` omit argument parentheses
 
-0.0.2
------
+## 0.0.2
 
 ### Changed
 - Normalize block arguments.  See [ruby_parser PR 189][3] (Ryan Davis)
 
-0.0.1
------
+## 0.0.1
 
 Initial version.  Just claiming the gem name.
 

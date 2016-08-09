@@ -1,9 +1,43 @@
 module Sexp2Ruby
   module Node
+    # A method call.
+    #
+    # Examples:
+    #
+    # ```
+    # a
+    # s(:call, nil, :a)
+    #
+    # A.b
+    # s(:call, s(:const, :A), :b)
+    #
+    # a(b)
+    # s(:call, nil, :a, s(:call, nil, :b))
+    #
+    # a(b, c: d, &e)
+    # s(
+    #   :call,
+    #   nil,
+    #   :a,
+    #   s(:call, nil, :b),
+    #   s(:hash, s(:lit, :c), s(:call, nil, :d)),
+    #   s(:block_pass, s(:call, nil, :e))
+    # )
+    #
+    # a = :a; a.b
+    # s(
+    #   :block,
+    #   s(:lasgn, :a, s(:lit, :a)),
+    #   s(:call, s(:lvar, :a), :b)
+    # )
+    # ```
     class Call < Base
-
       # binary operation messages
       BINARY = [:<=>, :==, :<, :>, :<=, :>=, :-, :+, :*, :/, :%, :<<, :>>, :**, :'!=']
+
+      def arguments?(exp)
+        exp.length > 2 # 1. receiver, 2. method name, 3+ arguments
+      end
 
       def to_s(exp)
         receiver_node_type = exp.first.nil? ? nil : exp.first.first
